@@ -1,13 +1,9 @@
 // ==UserScript==
 // @name         AI Enter as Newline
-// @name:zh-TW   AI Enter 換行
-// @name:zh-CN   AI Enter 换行
 // @namespace    http://tampermonkey.net/
 // @version      1.2.1
 // @description  Enable Enter key for newline in AI chat input, use Cmd+Enter (Mac) or Ctrl+Enter (Windows) to send message.
-// @description:zh-TW  讓 AI 聊天輸入區的 Enter 鍵可換行，使用 Cmd+Enter（Mac）或 Ctrl+Enter（Windows）送出訊息。
-// @description:zh-CN  让 AI 聊天输入区的 Enter 键可换行，使用 Cmd+Enter（Mac）或 Ctrl+Enter（Windows）发送消息。
-// @author       windofage
+// @author       Invictus Navarchus
 // @license      MIT
 // @match        https://chatgpt.com/*
 // @match        https://claude.ai/*
@@ -21,9 +17,14 @@
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_registerMenuCommand
-// @downloadURL https://update.greasyfork.org/scripts/531913/AI%20Enter%20as%20Newline.user.js
-// @updateURL https://update.greasyfork.org/scripts/531913/AI%20Enter%20as%20Newline.meta.js
+// @downloadURL  https://github.com/InvictusNavarchus/ai-enter-as-newline/raw/master/ai-enter-as-newline.user.js
+// @updateURL    https://github.com/InvictusNavarchus/ai-enter-as-newline/raw/master/ai-enter-as-newline.user.js
 // ==/UserScript==
+
+/*
+ * This script is a fork of "AI Enter as Newline" by windofage (MIT License)
+ * https://greasyfork.org/en/scripts/531913-ai-enter-as-newline
+ */
 
 (() => {
   "use strict";
