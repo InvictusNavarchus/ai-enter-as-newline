@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @version      2.0.0
 // @description  Enable Enter key for newline in AI chat input, use Cmd+Enter (Mac) or Ctrl+Enter (Windows) to send message.
-// @author       Invictus Navarchus
+// @author       Invictus Nagivarchus
 // @license      MIT
 // @match        https://chatgpt.com/*
 // @match        https://claude.ai/*
@@ -15,7 +15,6 @@
 // @match        https://duckduckgo.com/*
 // @grant        GM_getValue
 // @grant        GM_setValue
-// @grant        GM_registerMenuCommand
 // @downloadURL  https://github.com/InvictusNavarchus/ai-enter-as-newline/raw/master/ai-enter-as-newline.user.js
 // @updateURL    https://github.com/InvictusNavarchus/ai-enter-as-newline/raw/master/ai-enter-as-newline.user.js
 // ==/UserScript==
