@@ -34,66 +34,22 @@
 
   // 預設設定
   const defaultConfig = {
-    shortcuts: {
-      send: {
-        ctrl: true, // Ctrl + Enter
-        alt: false, // Alt/Option + Enter
-        meta: true, // Win/Cmd/Super + Enter
-      },
-    },
+    enabled: true, // 啟用 Ctrl+Enter 功能
   };
 
-  // 多語系翻譯字典
+  // 多語系翻譯字典（簡化版）
   const translations = {
     en: {
-      settings: "Settings",
-      close: "✕",
-      sendShortcut: "Send Message Shortcut (+ Enter):",
-      save: "Save",
-      reset: "Reset",
-      saveSuccess: "Settings saved!",
-      saveFailed: "Failed to save settings!",
-      resetConfirm: "Are you sure you want to reset to default settings?",
-      resetSuccess: "Settings reset to default!",
-      ctrlEnter: "Ctrl + Enter",
-      altEnter: "Alt + Enter",
-      cmdEnter: "Cmd + Enter",
-      winEnter: "Win + Enter",
-      superEnter: "Super + Enter",
+      toggleOn: "AI Enter Newline Mode: ON (Ctrl+Enter to send)",
+      toggleOff: "AI Enter Newline Mode: OFF (Enter to send)",
     },
-
     "zh-tw": {
-      settings: "設定",
-      close: "✕",
-      sendShortcut: "傳送訊息快捷鍵（+ Enter）：",
-      save: "儲存",
-      reset: "重設",
-      saveSuccess: "設定已儲存！",
-      saveFailed: "儲存設定失敗！",
-      resetConfirm: "確定要重設為預設設定嗎？",
-      resetSuccess: "設定已重設為預設值！",
-      ctrlEnter: "Ctrl + Enter",
-      altEnter: "Alt + Enter",
-      cmdEnter: "Cmd + Enter",
-      winEnter: "Win + Enter",
-      superEnter: "Super + Enter",
+      toggleOn: "AI Enter 換行模式：開啟 (Ctrl+Enter 發送)",
+      toggleOff: "AI Enter 換行模式：關閉 (Enter 發送)",
     },
-
     "zh-cn": {
-      settings: "设置",
-      close: "✕",
-      sendShortcut: "发送消息快捷键（+ Enter）：",
-      save: "保存",
-      reset: "重置",
-      saveSuccess: "设置已保存！",
-      saveFailed: "保存设置失败！",
-      resetConfirm: "确定要重置为默认设置吗？",
-      resetSuccess: "设置已重置为默认值！",
-      ctrlEnter: "Ctrl + Enter",
-      altEnter: "Alt + Enter",
-      cmdEnter: "Cmd + Enter",
-      winEnter: "Win + Enter",
-      superEnter: "Super + Enter",
+      toggleOn: "AI Enter 换行模式：开启 (Ctrl+Enter 发送)",
+      toggleOff: "AI Enter 换行模式：关闭 (Enter 发送)",
     },
   };
 
@@ -129,22 +85,7 @@
       if (savedConfig) {
         const config = JSON.parse(savedConfig);
         return {
-          shortcuts: {
-            send: {
-              ctrl:
-                config.shortcuts?.send?.ctrl !== undefined
-                  ? config.shortcuts.send.ctrl
-                  : defaultConfig.shortcuts.send.ctrl,
-              alt:
-                config.shortcuts?.send?.alt !== undefined
-                  ? config.shortcuts.send.alt
-                  : defaultConfig.shortcuts.send.alt,
-              meta:
-                config.shortcuts?.send?.meta !== undefined
-                  ? config.shortcuts.send.meta
-                  : defaultConfig.shortcuts.send.meta,
-            },
-          },
+          enabled: config.enabled !== undefined ? config.enabled : defaultConfig.enabled,
         };
       }
     } catch (error) {
@@ -164,270 +105,125 @@
     }
   }
 
-  // 建立設定介面
-  function createConfigInterface() {
-    // 如果已經有設定視窗開啟，則關閉它
-    const existingDialog = document.getElementById("ai-enter-config");
-    if (existingDialog) {
-      existingDialog.remove();
+  // 建立切換按鈕 UI
+  function createToggleButton() {
+    // 避免重複建立按鈕
+    if (document.getElementById("ai-enter-toggle")) {
       return;
     }
 
-    // 偵測使用者的作業系統
-    function detectOS() {
-      const userAgent = navigator.userAgent.toLowerCase();
-      const platform = navigator.platform.toLowerCase();
-
-      if (platform.includes("mac") || userAgent.includes("mac")) {
-        return "mac";
-      } else if (platform.includes("win") || userAgent.includes("win")) {
-        return "windows";
-      } else if (platform.includes("linux") || userAgent.includes("linux")) {
-        return "linux";
-      } else {
-        return "other";
-      }
-    }
-
-    const currentOS = detectOS();
-
-    // 載入目前設定
     const config = loadConfig();
-
+    
     // 偵測深色模式
     const isDarkMode =
       window.matchMedia &&
       window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-    // 根據深色/淺色模式設定配色
-    const colors = {
-      background: isDarkMode ? "#2d2d2d" : "#ffffff",
-      text: isDarkMode ? "#e0e0e0" : "#333333",
-      border: isDarkMode ? "#555555" : "#dddddd",
-      inputBg: isDarkMode ? "#3d3d3d" : "#ffffff",
-      inputBorder: isDarkMode ? "#666666" : "#dddddd",
-      buttonBg: isDarkMode ? "#3d3d3d" : "#f5f5f5",
-      buttonText: isDarkMode ? "#e0e0e0" : "#333333",
-      primary: "#4caf50", // 綠色按鈕，保持不變
-      shadow: isDarkMode ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.15)",
-    };
-
-    // 建立設定對話框
-    const dialogDiv = document.createElement("div");
-    dialogDiv.id = "ai-enter-config";
-    dialogDiv.style.position = "fixed";
-    dialogDiv.style.top = "50%";
-    dialogDiv.style.left = "50%";
-    dialogDiv.style.transform = "translate(-50%, -50%)";
-    dialogDiv.style.backgroundColor = colors.background;
-    dialogDiv.style.color = colors.text;
-    dialogDiv.style.border = `1px solid ${colors.border}`;
-    dialogDiv.style.borderRadius = "8px";
-    dialogDiv.style.padding = "20px";
-    dialogDiv.style.width = "350px";
-    dialogDiv.style.maxWidth = "90vw";
-    dialogDiv.style.maxHeight = "90vh";
-    dialogDiv.style.overflowY = "auto";
-    dialogDiv.style.zIndex = "10000";
-    dialogDiv.style.boxShadow = `0 4px 12px ${colors.shadow}`;
-    dialogDiv.style.fontFamily =
-      "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
-
-    // 設定標題
-    const titleDiv = document.createElement("div");
-    titleDiv.style.display = "flex";
-    titleDiv.style.justifyContent = "space-between";
-    titleDiv.style.alignItems = "center";
-    titleDiv.style.marginBottom = "16px";
-
-    const title = document.createElement("h2");
-    title.textContent = t("settings");
-    title.style.margin = "0";
-    title.style.fontSize = "18px";
-    title.style.color = colors.text;
-
-    const closeButton = document.createElement("button");
-    closeButton.textContent = t("close");
-    closeButton.style.background = "none";
-    closeButton.style.border = "none";
-    closeButton.style.color = colors.text;
-    closeButton.style.cursor = "pointer";
-    closeButton.style.fontSize = "18px";
-    closeButton.onclick = () => dialogDiv.remove();
-
-    titleDiv.appendChild(title);
-    titleDiv.appendChild(closeButton);
-    dialogDiv.appendChild(titleDiv);
-
-    // 快捷鍵設定
-    const shortcutsLabel = document.createElement("label");
-    shortcutsLabel.textContent = t("sendShortcut");
-    shortcutsLabel.style.display = "block";
-    shortcutsLabel.style.marginBottom = "12px";
-    shortcutsLabel.style.color = colors.text;
-    shortcutsLabel.style.fontWeight = "bold";
-    dialogDiv.appendChild(shortcutsLabel);
-
-    // 快捷鍵選項容器
-    const shortcutsContainer = document.createElement("div");
-    shortcutsContainer.style.marginBottom = "16px";
-    shortcutsContainer.style.padding = "12px";
-    shortcutsContainer.style.backgroundColor = isDarkMode
-      ? "#3a3a3a"
-      : "#f8f9fa";
-    shortcutsContainer.style.border = `1px solid ${colors.border}`;
-    shortcutsContainer.style.borderRadius = "6px";
-
-    // 根據作業系統顯示適當的快捷鍵標籤
-    const shortcuts = [
-      {
-        key: "ctrl",
-        label: currentOS === "mac" ? `⌃ ${t("ctrlEnter")}` : t("ctrlEnter"),
-      },
-      {
-        key: "alt",
-        label: currentOS === "mac" ? `⌥ ${t("altEnter")}` : t("altEnter"),
-      },
-      {
-        key: "meta",
-        label:
-          currentOS === "mac"
-            ? `⌘ ${t("cmdEnter")}`
-            : currentOS === "windows"
-            ? `⊞ ${t("winEnter")}`
-            : currentOS === "linux"
-            ? t("superEnter")
-            : t("winEnter"),
-      },
-    ];
-
-    shortcuts.forEach((shortcut) => {
-      const optionDiv = document.createElement("div");
-      optionDiv.style.display = "flex";
-      optionDiv.style.alignItems = "center";
-      optionDiv.style.marginBottom = "8px";
-
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.id = `shortcut-${shortcut.key}`;
-      checkbox.checked =
-        config.shortcuts?.send?.[shortcut.key] !== undefined
-          ? config.shortcuts.send[shortcut.key]
-          : defaultConfig.shortcuts.send[shortcut.key];
-      if (isDarkMode) {
-        checkbox.style.accentColor = colors.primary;
-      }
-
-      const labelElement = document.createElement("label");
-      labelElement.htmlFor = `shortcut-${shortcut.key}`;
-      labelElement.style.marginLeft = "8px";
-      labelElement.style.color = colors.text;
-      labelElement.style.cursor = "pointer";
-      labelElement.style.flexGrow = "1";
-      labelElement.textContent = shortcut.label;
-
-      optionDiv.appendChild(checkbox);
-      optionDiv.appendChild(labelElement);
-      shortcutsContainer.appendChild(optionDiv);
-    });
-
-    dialogDiv.appendChild(shortcutsContainer);
-
-    // 按鈕區域
-    const buttonDiv = document.createElement("div");
-    buttonDiv.style.display = "flex";
-    buttonDiv.style.justifyContent = "flex-end";
-    buttonDiv.style.marginTop = "16px";
-
-    const saveButton = document.createElement("button");
-    saveButton.textContent = t("save");
-    saveButton.style.padding = "8px 16px";
-    saveButton.style.backgroundColor = colors.primary;
-    saveButton.style.color = "white";
-    saveButton.style.border = "none";
-    saveButton.style.borderRadius = "4px";
-    saveButton.style.cursor = "pointer";
-    saveButton.style.marginLeft = "8px";
-
-    saveButton.onclick = () => {
-      // 取得勾選的快捷鍵設定
-      const sendShortcuts = {
-        ctrl: document.getElementById("shortcut-ctrl").checked,
-        alt: document.getElementById("shortcut-alt").checked,
-        meta: document.getElementById("shortcut-meta").checked,
-      };
-
-      const newConfig = {
-        shortcuts: {
-          send: sendShortcuts,
-        },
-      };
-
-      if (saveConfig(newConfig)) {
-        alert(t("saveSuccess"));
-        dialogDiv.remove();
-        // 重新載入設定
-        currentConfig = loadConfig();
+    // 建立切換按鈕
+    const toggleButton = document.createElement("button");
+    toggleButton.id = "ai-enter-toggle";
+    toggleButton.title = config.enabled 
+      ? t("toggleOn")
+      : t("toggleOff");
+    
+    // 按鈕樣式
+    toggleButton.style.position = "fixed";
+    toggleButton.style.top = "10px";
+    toggleButton.style.right = "10px";
+    toggleButton.style.zIndex = "9999";
+    toggleButton.style.width = "40px";
+    toggleButton.style.height = "40px";
+    toggleButton.style.borderRadius = "50%";
+    toggleButton.style.border = "2px solid #4caf50";
+    toggleButton.style.cursor = "pointer";
+    toggleButton.style.fontSize = "16px";
+    toggleButton.style.display = "flex";
+    toggleButton.style.alignItems = "center";
+    toggleButton.style.justifyContent = "center";
+    toggleButton.style.transition = "all 0.3s ease";
+    toggleButton.style.fontFamily = "monospace";
+    toggleButton.style.fontWeight = "bold";
+    
+    // 根據狀態設定按鈕外觀
+    function updateButtonAppearance() {
+      const currentConfig = loadConfig();
+      if (currentConfig.enabled) {
+        toggleButton.style.backgroundColor = "#4caf50";
+        toggleButton.style.color = "white";
+        toggleButton.textContent = "⏎";
+        toggleButton.title = t("toggleOn");
       } else {
-        alert(t("saveFailed"));
+        toggleButton.style.backgroundColor = isDarkMode ? "#2d2d2d" : "white";
+        toggleButton.style.color = isDarkMode ? "#e0e0e0" : "#666";
+        toggleButton.textContent = "⏎";
+        toggleButton.title = t("toggleOff");
+      }
+    }
+    
+    updateButtonAppearance();
+    
+    // 點擊事件
+    toggleButton.onclick = () => {
+      const currentConfig = loadConfig();
+      const newConfig = { enabled: !currentConfig.enabled };
+      
+      if (saveConfig(newConfig)) {
+        currentConfig.enabled = newConfig.enabled;
+        updateButtonAppearance();
+        console.log("AI Enter 設定已更新:", newConfig);
       }
     };
+    
+    document.body.appendChild(toggleButton);
+  }
 
-    const resetButton = document.createElement("button");
-    resetButton.textContent = t("reset");
-    resetButton.style.padding = "8px 16px";
-    resetButton.style.backgroundColor = colors.buttonBg;
-    resetButton.style.color = colors.buttonText;
-    resetButton.style.border = `1px solid ${colors.border}`;
-    resetButton.style.borderRadius = "4px";
-    resetButton.style.cursor = "pointer";
-
-    resetButton.onclick = () => {
-      if (confirm(t("resetConfirm"))) {
-        saveConfig(defaultConfig);
-        alert(t("resetSuccess"));
-        dialogDiv.remove();
-        // 重新載入設定
-        currentConfig = loadConfig();
-        // 移除背景遮罩
-        const overlay = document.querySelector('div[style*="z-index: 9999"]');
-        if (overlay) overlay.remove();
-        // 重新開啟設定介面以顯示重設後的設定
-        createConfigInterface();
-      }
-    };
-
-    buttonDiv.appendChild(resetButton);
-    buttonDiv.appendChild(saveButton);
-    dialogDiv.appendChild(buttonDiv);
-
-    // 新增設定對話框到頁面
-    document.body.appendChild(dialogDiv);
-
-    // 新增背景遮罩
-    const overlay = document.createElement("div");
-    overlay.style.position = "fixed";
-    overlay.style.top = "0";
-    overlay.style.left = "0";
-    overlay.style.width = "100%";
-    overlay.style.height = "100%";
-    overlay.style.backgroundColor = isDarkMode
-      ? "rgba(0,0,0,0.7)"
-      : "rgba(0,0,0,0.5)";
-    overlay.style.zIndex = "9999";
-    overlay.onclick = () => {
-      overlay.remove();
-      dialogDiv.remove();
-    };
-
-    document.body.insertBefore(overlay, dialogDiv);
+  // 移除舊的設定介面函數
+  function createConfigInterface() {
+    // 舊版設定介面已移除，改為使用切換按鈕
+    console.log("請使用右上角的切換按鈕來控制 AI Enter 功能");
   }
 
   // 載入設定
   let currentConfig = loadConfig();
 
-  // 註冊設定選單
-  GM_registerMenuCommand("⚙️ Settings", createConfigInterface);
+  // 註冊設定選單（保留舊的介面相容性）
+  GM_registerMenuCommand("⚙️ Toggle AI Enter", () => {
+    const newConfig = { enabled: !currentConfig.enabled };
+    if (saveConfig(newConfig)) {
+      currentConfig = loadConfig();
+      console.log("AI Enter 設定已更新:", currentConfig);
+      // 更新按鈕外觀
+      const toggleButton = document.getElementById("ai-enter-toggle");
+      if (toggleButton) {
+        const isDarkMode = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (currentConfig.enabled) {
+          toggleButton.style.backgroundColor = "#4caf50";
+          toggleButton.style.color = "white";
+          toggleButton.title = t("toggleOn");
+        } else {
+          toggleButton.style.backgroundColor = isDarkMode ? "#2d2d2d" : "white";
+          toggleButton.style.color = isDarkMode ? "#e0e0e0" : "#666";
+          toggleButton.title = t("toggleOff");
+        }
+      }
+    }
+  });
+
+  // 初始化切換按鈕
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", createToggleButton);
+  } else {
+    createToggleButton();
+  }
+
+  // 監聽頁面變化，確保按鈕存在
+  const observer = new MutationObserver(() => {
+    if (!document.getElementById("ai-enter-toggle")) {
+      createToggleButton();
+    }
+  });
+  
+  observer.observe(document.body, { childList: true, subtree: true });
 
   // 輸出啟動資訊至 console
   console.log(
@@ -455,35 +251,13 @@
   }
 
   /**
-   * 檢查按鍵組合是否為任何可能的發送快捷鍵（不論是否啟用）
+   * 檢查按鍵組合是否為發送快捷鍵 (Ctrl+Enter)
    * @param {KeyboardEvent} e - 鍵盤事件
-   * @returns {boolean} 是否為潛在的發送快捷鍵組合
+   * @returns {boolean} 是否為發送快捷鍵組合
    */
-  function isPotentialSendShortcut(e) {
-    if (e.key !== "Enter") return false;
-
-    // 檢查是否為任何可能的發送快捷鍵組合：Ctrl+Enter、Alt+Enter 或 Cmd+Enter
-    const isCtrlOnly = e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey;
-    const isAltOnly = e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey;
-    const isMetaOnly = e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey;
-
-    return isCtrlOnly || isAltOnly || isMetaOnly;
-  }
-
-  // 檢查是否為發送快捷鍵
   function isSendShortcut(e) {
-    // 必須按下 Enter 鍵
     if (e.key !== "Enter") return false;
-
-    const shortcuts =
-      currentConfig.shortcuts?.send || defaultConfig.shortcuts.send;
-
-    // 檢查是否有任何一個勾選的快捷鍵符合目前按鍵組合
-    return (
-      (shortcuts.ctrl && e.ctrlKey && !e.altKey && !e.metaKey) ||
-      (shortcuts.alt && e.altKey && !e.ctrlKey && !e.metaKey) ||
-      (shortcuts.meta && e.metaKey && !e.ctrlKey && !e.altKey)
-    );
+    return e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey;
   }
 
   // ChatGPT 特殊處理：尋找送出按鈕
@@ -495,6 +269,11 @@
   window.addEventListener(
     "keydown",
     (e) => {
+      // 如果功能未啟用，不處理任何事件
+      if (!currentConfig.enabled) {
+        return;
+      }
+
       // ChatGPT 網站特殊處理
       if (window.location.href.includes("chatgpt.com")) {
         // 如果正在進行中文輸入法選字，不干擾原生行為
@@ -535,7 +314,7 @@
           }
         }
 
-        // 使用自訂快捷鍵觸發送出
+        // 使用 Ctrl+Enter 觸發送出
         if (isSendShortcut(e)) {
           // 同樣，如果正在中文輸入，不處理
           if (isChineseInputMode(e)) {
@@ -553,9 +332,8 @@
           }
         }
 
-        // 智慧型事件冒泡防止：如果是潛在的快捷鍵但未被使用者啟用，
-        // 阻止事件傳播，避免觸發 ChatGPT 的原生快捷鍵行為
-        if (isPotentialSendShortcut(e)) {
+        // 阻止 Ctrl+Enter 的原生行為
+        if (isSendShortcut(e)) {
           const target = getEventTarget(e);
           if (isInChatGPTTextarea(target)) {
             e.preventDefault();
@@ -588,28 +366,14 @@
           }
         }
 
-        // 如果是自訂快捷鍵組合，讓原生行為執行（不阻止）
-        // 這樣使用者可以在其他網站使用相同的快捷鍵設定
+        // 如果是 Ctrl+Enter，讓原生行為執行
         if (isSendShortcut(e)) {
           // 不做任何處理，讓網站的原生快捷鍵邏輯執行
           return;
         }
 
-        // 智慧型事件冒泡防止：如果是潛在的快捷鍵但未被使用者啟用，
-        // 也要阻止冒泡，避免觸發網站的原生快捷鍵行為
-        // 但對於 felo.ai，允許 ctrl+enter 正常冒泡, 因為 felo.ai 的 ctrl+enter 是用來搜尋網頁的
-        if (isPotentialSendShortcut(e)) {
-          // 如果是 felo.ai 且是 ctrl+enter，不阻止冒泡
-          if (
-            window.location.href.includes("felo.ai") &&
-            e.ctrlKey &&
-            e.key === "Enter" &&
-            !e.altKey &&
-            !e.metaKey
-          ) {
-            return;
-          }
-
+        // 阻止 Ctrl+Enter 冒泡到其他地方
+        if (isSendShortcut(e)) {
           const target = getEventTarget(e);
           if (
             /INPUT|TEXTAREA|SELECT|LABEL/.test(target.tagName) ||
@@ -628,11 +392,18 @@
   window.addEventListener(
     "keypress",
     (e) => {
+      // 如果功能未啟用，不處理任何事件
+      if (!currentConfig.enabled) {
+        return;
+      }
+
       // ChatGPT 網站使用 keydown 處理就足夠，這裡保持原樣
       if (window.location.href.includes("chatgpt.com")) return;
 
       // 如果正在進行中文輸入法選字，不干擾原生行為
-      if (isChineseInputMode(e)) return; // 如果是 Enter 鍵且沒有按下其他修飾鍵（純 Enter）
+      if (isChineseInputMode(e)) return; 
+      
+      // 如果是 Enter 鍵且沒有按下其他修飾鍵（純 Enter）
       if (
         e.key === "Enter" &&
         !e.ctrlKey &&
@@ -651,26 +422,13 @@
         }
       }
 
-      // 如果是自訂快捷鍵組合，讓原生行為執行（不阻止）
+      // 如果是 Ctrl+Enter，讓原生行為執行（不阻止）
       if (isSendShortcut(e)) {
         return;
       }
 
-      // 智慧型事件冒泡防止：如果是潛在的快捷鍵但未被使用者啟用，
-      // 也要阻止冒泡，避免觸發網站的原生快捷鍵行為
-      // 但對於 felo.ai，允許 ctrl+enter 正常冒泡
-      if (isPotentialSendShortcut(e)) {
-        // 如果是 felo.ai 且是 ctrl+enter，不阻止冒泡
-        if (
-          window.location.href.includes("felo.ai") &&
-          e.ctrlKey &&
-          e.key === "Enter" &&
-          !e.altKey &&
-          !e.metaKey
-        ) {
-          return;
-        }
-
+      // 阻止 Ctrl+Enter 冒泡
+      if (isSendShortcut(e)) {
         const target = getEventTarget(e);
         if (
           /INPUT|TEXTAREA|SELECT|LABEL/.test(target.tagName) ||
