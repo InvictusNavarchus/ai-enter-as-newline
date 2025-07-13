@@ -65,7 +65,6 @@ interface SiteHandlers {
 // Tampermonkey API types
 declare function GM_getValue(key: string): string | undefined;
 declare function GM_setValue(key: string, value: string): void;
-declare function GM_registerMenuCommand(caption: string, commandFunc: () => void): void;
 
 // Extend Navigator interface for legacy browser support
 interface Navigator {
@@ -413,7 +412,6 @@ const App = {
   init(): void {
     this.config = ConfigManager.load();
     this.setupComponents();
-    this.registerMenuCommand();
     this.logStartup();
   },
 
@@ -443,15 +441,6 @@ const App = {
       ToggleButton.updateConfig(this.config);
       console.log("AI Enter config updated:", this.config);
     }
-  },
-
-  registerMenuCommand(): void {
-    GM_registerMenuCommand("⚙️ Toggle AI Enter", (): void => {
-      if (!this.config) return;
-      
-      const newConfig: Config = { enabled: !this.config.enabled };
-      this.handleToggle(newConfig);
-    });
   },
 
   logStartup(): void {
