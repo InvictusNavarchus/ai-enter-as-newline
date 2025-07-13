@@ -320,7 +320,6 @@ const App = {
     init() {
         this.config = ConfigManager.load();
         this.setupComponents();
-        this.registerMenuCommand();
         this.logStartup();
     },
     setupComponents() {
@@ -348,14 +347,6 @@ const App = {
             ToggleButton.updateConfig(this.config);
             console.log("AI Enter config updated:", this.config);
         }
-    },
-    registerMenuCommand() {
-        GM_registerMenuCommand("⚙️ Toggle AI Enter", () => {
-            if (!this.config)
-                return;
-            const newConfig = { enabled: !this.config.enabled };
-            this.handleToggle(newConfig);
-        });
     },
     logStartup() {
         console.log("AI Enter Newline UserScript loaded. Current config:", this.config);
