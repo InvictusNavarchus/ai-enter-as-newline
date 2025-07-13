@@ -68,6 +68,11 @@ declare function GM_getValue(key: string): string | undefined;
 declare function GM_setValue(key: string, value: string): void;
 declare function GM_registerMenuCommand(caption: string, commandFunc: () => void): void;
 
+// Extend Navigator interface for legacy browser support
+interface Navigator {
+  userLanguage?: string;
+}
+
 // ========================================
 // CONFIGURATION MODULE
 // ========================================
@@ -122,7 +127,7 @@ const I18n = {
   } as const satisfies Translations,
 
   detectLanguage(): SupportedLanguage {
-    const lang: string = navigator.language || navigator.userLanguage;
+    const lang: string = navigator.language || navigator.userLanguage || 'en';
     if (lang.startsWith("zh")) {
       return lang.includes("TW") || lang.includes("HK") || lang.includes("MO") 
         ? "zh-tw" : "zh-cn";
@@ -300,7 +305,7 @@ const KeyboardHandler = {
       handler.handleSend(e, target);
     }
   }
-} as const;
+};
 
 // ========================================
 // UI TOGGLE BUTTON
@@ -398,7 +403,7 @@ const ToggleButton = {
     
     observer.observe(document.body, { childList: true, subtree: true });
   }
-} as const;
+};
 
 // ========================================
 // MAIN APPLICATION
@@ -453,7 +458,7 @@ const App = {
   logStartup(): void {
     console.log("AI Enter Newline UserScript loaded. Current config:", this.config);
   }
-} as const;
+};
 
 // ========================================
 // INITIALIZATION
