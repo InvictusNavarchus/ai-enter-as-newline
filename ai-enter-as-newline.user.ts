@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AI Enter as Newline
 // @namespace    http://tampermonkey.net/
-// @version      1.2.1
+// @version      2.0.0
 // @description  Enable Enter key for newline in AI chat input, use Cmd+Enter (Mac) or Ctrl+Enter (Windows) to send message.
 // @author       Invictus Navarchus
 // @license      MIT
