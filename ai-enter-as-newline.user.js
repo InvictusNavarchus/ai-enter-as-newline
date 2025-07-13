@@ -13,7 +13,6 @@
 // @match        https://chat.deepseek.com/*
 // @match        https://grok.com/*
 // @match        https://duckduckgo.com/*
-// @include      http://192.168.*.*:*/*
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_registerMenuCommand
