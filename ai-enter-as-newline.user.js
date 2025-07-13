@@ -164,11 +164,12 @@
     
     // 點擊事件
     toggleButton.onclick = () => {
-      const currentConfig = loadConfig();
-      const newConfig = { enabled: !currentConfig.enabled };
+      const loadedConfig = loadConfig();
+      const newConfig = { enabled: !loadedConfig.enabled };
       
       if (saveConfig(newConfig)) {
-        currentConfig.enabled = newConfig.enabled;
+        // 更新全域的 currentConfig
+        currentConfig = newConfig;
         updateButtonAppearance();
         console.log("AI Enter 設定已更新:", newConfig);
       }
@@ -190,7 +191,7 @@
   GM_registerMenuCommand("⚙️ Toggle AI Enter", () => {
     const newConfig = { enabled: !currentConfig.enabled };
     if (saveConfig(newConfig)) {
-      currentConfig = loadConfig();
+      currentConfig = newConfig;
       console.log("AI Enter 設定已更新:", currentConfig);
       // 更新按鈕外觀
       const toggleButton = document.getElementById("ai-enter-toggle");
