@@ -166,7 +166,7 @@ const Utils = {
   },
 
   isDarkMode(): boolean {
-    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    return window.matchMedia?.("(prefers-color-scheme: dark)")?.matches ?? false;
   },
 
   isInputElement(target: EventTarget): boolean {
