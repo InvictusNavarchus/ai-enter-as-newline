@@ -464,6 +464,5 @@ const App = {
 // INITIALIZATION
 // ========================================
 (() => {
-  "use strict";
   App.init();
 })();
